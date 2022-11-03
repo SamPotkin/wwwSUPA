@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Mr. Morris' Special Site</title>
+  </head>
+  <body>
+	
+	  <div class="container">
+		  <h1>Login to see Mr. Morris' Special Sauce</h1>
+		  <div class="row">
+		  <div class="col-12 border">
+			  <p class="pt-2 pb-2">
+			  Upgrade your <u>life </u>by acessing these premium educational content ncluding a calculator that will tell you how many years you have been alive!
+			  </p>
+		  </div>
+		  </div>
+		  <br>
+		  <select class="form-control col-3 d-inline" id="pwordselect">
+			  <option value="">Password Testing</option>
+			  <option value="pworddollarsign">Dollar Sign in pword</option>
+			  <option value="pwordasterisk">Asterisks in pword</option>
+			  <option value="pwordtooshort">pword too short</option>
+			  <option value="pwordallgood">Password is good</option>
+		  </select>
+		  <select class="form-control col-3 d-inline" id="emailselect">
+			  <option value="">Email Testing</option>
+			  <option value="emailtooshort">Email too short</option>
+			  <option value="emailnoat">Email no @</option>
+			  <option value="emailnodot">Email no .</option>
+			  <option value="emailwrongorder">Email @ and . in wrong order</option>
+			  <option value="emailgood">Email Good</option>
+		  </select>
+		  <br><br>
+		  <div class="input-group">
+			  <div class="input-group-prepend">
+				  <span class="input-group-text">Email</span>
+			  </div>
+			  <input type="text" class="form-control" id="useremail" placeholder="Enter Your Email">
+		  </div>
+		  <br>
+		  <div class="input-group">
+			  <div class="input-group-prepend">
+				  <span class="input-group-text">Password</span>
+			  </div>
+			  <input type="text" class="form-control" id="userPWord" placeholder="Enter Your Password">
+		  </div>
+		  <br>
+		  <div class="input-group">
+			  <div class="input-group-prepend">
+				  <span class="input-group-text">
+					  <span id="QButton">What is 6+7?</span>
+				  </span>
+			  </div>
+			  <input type="text" class="form-control" id="useranswer" placeholder="Enter Your Answer">
+		  </div>
+		  <br>
+		  <div class="input-group">
+			  <button class="btn btn-primary" id="loginbttn" type="submit">Login</button>
+		  </div>
+		  <br>
+		  <h6 class="bg-danger text-white" style="display:none" id="pworderror">Your Password must be 5+ characters, and cannot include * or $</h6>
+		  <h6 class="bg-danger text-white" style="display:none" id="emailerror">Please enter a valid email.</h6>
+		  <h6 class="bg-danger text-white" style="display:none"id="answererror">Please enter the correct answer.</h6>
+	  </div>
+	  <script>
+		  
+	  let docG = (id) => {return document.getElementById(id);}
+	  
+	  let BotAnswer = -1
+		let qButton = docG("QButton")
+		let GenerateBotQ = () =>{
+			  let No1 = Math.floor(Math.random() *21) +2;
+			  let No2 = Math.floor(Math.random() *21) +2;
+			  BotAnswer = No1 + No2
+			console.log(BotAnswer)
+			console.log(qButton)
+			qButton.innerHTML = "What is " + No1 + " + " + No2 + "?"
+		  }
+		window.addEventListener('load', GenerateBotQ)
+	  
+	  
+	  let loginClicked = (e) =>{
+		  let eHasError = false;
+		  let pHasError = false;
+		  let aHasError = false;
+		  let answererror = docG("answererror")
+		  let pworderror = docG("pworderror")
+		  let emailerror = docG("emailerror")
+		  console.log("loginClicked()");
+		  
+		  let useranswer = docG("useranswer");
+		  if (useranswer.value != BotAnswer){
+			  $(answererror).fadeIn();
+			  useranswer.select();
+			  aHasError = true;
+		  }
+		  
+		  let userpword=docG("userPWord");
+		  let bValidPword = isValidPWord(userpword.value)
+		  console.log(isValidPWord(userpword.value))
+		  if (bValidPword==false){
+			  $(pworderror).fadeIn();
+			  userpword.select();
+			  pHasError = true;
+		  }
+		  let useremail=docG("useremail");
+		  let buseremail=isValidEmail(useremail.value);
+		  if (buseremail==false){
+			  $(emailerror).fadeIn();
+			  useremail.select();
+			  eHasError = true;
+		  }
+		  
+		  if (aHasError ===false){
+			  $(answererror).fadeOut();
+		  }
+		  if (pHasError ===false){
+			  $(pworderror).fadeOut();
+		  }
+		  if (eHasError ===false){
+			  $(emailerror).fadeOut();
+		  }
+		  if (eHasError ===true || pHasError===true || aHasError ===true){
+			  GenerateBotQ();
+		  }
+		  
+	  }
+	  
+	  docG('loginbttn').addEventListener('click', loginClicked)
+		  
+		
+		
+		  let isValidPWord = (str) =>{
+			if(str.length < 5 || str.indexOf('$')>-1 || str.indexOf('*')>-1) {
+				return false	
+			} else{
+				return true
+			}
+		}
+	  let pWordSelect = docG("pwordselect");
+		  pWordSelect.addEventListener('change', function(evt){
+				let selected=docG("pwordselect").value;
+		  console.log(selected);
+			  
+			  const CASE_PWORD_TOO_SHORT = 'pwordtooshort';
+			  const CASE_PWORD_HAS_DOLLARSIGN = 'pworddollarsign';
+			  const CASE_PWORD_HAS_ASTERISK = 'pwordasterisk';
+			  const CASE_PWORD_GOOD = 'pwordallgood';
+			  
+			  let pWordElem = docG("userPWord")
+			  
+			  if (selected == CASE_PWORD_TOO_SHORT){
+				  pWordElem.value = "abc";
+			  }
+			  if (selected == CASE_PWORD_HAS_DOLLARSIGN){
+				  pWordElem.value = "abc$$$";
+			  }
+			  if (selected == CASE_PWORD_HAS_ASTERISK){
+				  pWordElem.value = "abc***";
+			  }
+			  if (selected == CASE_PWORD_GOOD){
+				  pWordElem.value = "abc123";
+			  }
+			  loginClicked();
+			});
+		  
+	let emailselect = docG("emailselect");
+		  emailselect.addEventListener('change', function(evt){
+			  let selected=docG("emailselect").value;
+		  console.log(selected);
+			  const EMAIL_TOO_SHORT = 'emailtooshort';
+			  const EMAIL_NO_AT = 'emailnoat';
+			  const EMAIL_NO_DOT = 'emailnodot';
+			  const EMAIL_WRONG_ORDER = 'emailwrongorder';
+			  const EMAIL_GOOD = 'emailgood';
+			  
+			  let emailelem = docG("useremail")
+			  
+			  if (selected == EMAIL_TOO_SHORT){
+				  emailelem.value = "abc";
+			  }
+			  if (selected == EMAIL_NO_AT){
+				  emailelem.value = "abcabcabc.com";
+			  }
+			  if (selected == EMAIL_NO_DOT){
+				  emailelem.value = "abcabcabc@gmail";
+			  }
+			  if (selected == EMAIL_WRONG_ORDER){
+				  emailelem.value = "abcabc.com@gmail";
+			  }
+			  if (selected == EMAIL_GOOD){
+				  emailelem.value = "abcabc@gmail.com";
+			  }
+			  loginClicked();
+		  })
+		  
+		  
+		  let isValidEmail = (str) => {
+			  if(str.length < 5 || str.indexOf('@')<0 || str.indexOf('.')<0 || str.indexOf('@')>str.indexOf('.')) {
+				  console.log("false")
+				  return false
+		  }
+			  else{
+				  return true
+			  }
+		  }
+	  
+	  </script>
+	  
+	  
+	  
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
