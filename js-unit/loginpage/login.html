@@ -23,14 +23,14 @@
 		  </div>
 		  <br>
 		  <select class="form-control col-3 d-inline" id="pwordselect">
-			  <option value="">Password Testing</option>
+			  <option value="ptesting">Password Testing</option>
 			  <option value="pworddollarsign">Dollar Sign in pword</option>
 			  <option value="pwordasterisk">Asterisks in pword</option>
 			  <option value="pwordtooshort">pword too short</option>
 			  <option value="pwordallgood">Password is good</option>
 		  </select>
 		  <select class="form-control col-3 d-inline" id="emailselect">
-			  <option value="">Email Testing</option>
+			  <option value="etesting">Email Testing</option>
 			  <option value="emailtooshort">Email too short</option>
 			  <option value="emailnoat">Email no @</option>
 			  <option value="emailnodot">Email no .</option>
@@ -153,9 +153,13 @@
 			  const CASE_PWORD_HAS_DOLLARSIGN = 'pworddollarsign';
 			  const CASE_PWORD_HAS_ASTERISK = 'pwordasterisk';
 			  const CASE_PWORD_GOOD = 'pwordallgood';
+			  const CASE_PWORD_TEST = 'ptesting';
 			  
 			  let pWordElem = docG("userPWord")
 			  
+			  if (selected == CASE_PWORD_TEST){
+				  pWordElem.value = "";
+			  }
 			  if (selected == CASE_PWORD_TOO_SHORT){
 				  pWordElem.value = "abc";
 			  }
@@ -180,9 +184,13 @@
 			  const EMAIL_NO_DOT = 'emailnodot';
 			  const EMAIL_WRONG_ORDER = 'emailwrongorder';
 			  const EMAIL_GOOD = 'emailgood';
+			  const EMAIL_TEST = 'etesting';
 			  
 			  let emailelem = docG("useremail")
 			  
+			  if (selected == EMAIL_TEST){
+				  emailelem.value = "";
+			  }
 			  if (selected == EMAIL_TOO_SHORT){
 				  emailelem.value = "abc";
 			  }
