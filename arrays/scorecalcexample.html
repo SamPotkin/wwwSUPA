@@ -20,41 +20,62 @@
 			  <div class="input-group-prepend">
 				  <span class="input-group-text">Add a Quiz:</span>
 			  </div>
-			  <input type="text" class="form-control" id="quizinput" placeholder="Enter your next quiz score">
+			  <input type="text" class="form-control" id="quizgrade" placeholder="Enter your next quiz score">
 		  
 			  <button class="btn btn-primary" id="addquizbttn" type="submit">Add New Quiz</button>
 		  </div>
 		  <br><br>
-		  <div class="row" style="">
-		  <div class="col-6  border border-top-0">
+		  <div class="d-flex flex-row " style="">
+		  <div class="col-6 d-flex flex-column h-100 border border-top-0">
 			  	<h2 class="col-12 bg-success text-white text-center ">Current Scores</h2>
-			  <div class="text-center row" id="quizgrades">
-			  
+			  <p class="text-center">85,44,100,22,33</p>
 			  </div>
-			  </div>
-		  <div class="col-6   border border-top-0">
+		  <div class="col-6 d-flex flex-column h-100 border border-top-0">
 			  <h2 class="col-12 bg-success text-white text-center ">Average</h2>
-			  <p class="text-center" id="quizzesavg"></p>
+			  <p class="text-center">56.80</p>
 		  </div>
 			  </div>
 		  <div class="d-none" id="errordiv">
 			  ERROR!
-		  </div><br>
-		  <button type="button" class="btn btn-sm border disabled" id="clearbttn">Clear</button>
+		  </div>
 	  </div>
 	  
 	  <script>
 	  
 	  let quizzes = []
+	  let subjects =["Physics", "Chemistry", "Biology", "Space"]
+	  subjects.push("math")
+	  
 	  let docG = (id) =>{return document.getElementById(id);}
-	  let quizavg = ""
-	  let listspot=0
+	 
 		  
 	let addbttn = docG("addquizbttn")
-	let clearbttn = docG("clearbttn")
 	
 	
-	  let smallest = (nums) =>{
+	  let addQuizClicked = (e) => {
+		  docG("errordiv").className = "d-none";
+		  let grade = parseFloat(docG("quizgrade").value);
+		  if (Number.isNaN(grade)){
+			  docG("errordiv").className = "d-inline"
+			  return
+		  }
+		  else{
+		  console.log(grade)
+		  quizzes.push(grade)
+		  console.log(quizzes)
+		  grade = ""
+		  docG("quizgrade").focus()
+		  }
+	  }
+	
+	
+	addbttn.addEventListener("click", addQuizClicked)
+		  
+		  
+		  
+		
+		  
+		  let smallest = (nums) =>{
 		let small = nums[0]
 		for ( let i = 0; i<nums.length;i++){
 			if (nums[i]<small){
@@ -64,9 +85,8 @@
 		return small
 	}
 	
-	  let average = (nums, dropLowest) =>{
+	let average = (nums, dropLowest) =>{
 		let s=0;
-		if (nums.length>1){
 		if (dropLowest === true){
 			let small = smallest(nums);
 			for ( let i = 0; i<nums.length;i++){
@@ -76,75 +96,22 @@
 		let avg = s/(nums.length-1)
 		return avg
 		}
-		}
-		
+		else{
 		for ( let i = 0; i<nums.length;i++){
 			s += nums[i];
 	}
 		let avg = s/nums.length
 		return avg
-	}
-	
-	
-	  let addQuizClicked = (e) => {
-		  docG("errordiv").className = "d-none";
-		  let grade = parseFloat(docG("quizinput").value);
-		  if (Number.isNaN(grade)){
-			  docG("errordiv").className = "d-block bg-danger text-white"
-			  docG("quizinput").focus()
-		  	  docG("quizinput").value = ""
-			  return
-		  }
-		  else{
-		  quizzes.push(grade)
-		  let quizavg = average(quizzes, false)
-		  docG("quizgrades").innerHTML+= "<div class='text-center col-sm-12 col-md-6 border' id='quiz_ "+ listspot +"'>" + grade + "</div>" 
-		  listspot += 1
-		  docG("quizzesavg").innerHTML = quizavg
-		  grade = ""
-		  docG("quizinput").focus()
-		  docG("quizinput").value = ""
-		  docG("clearbttn").className="btn btn-sm border"
-			  console.log(quizzes)
-		  }
-	  }
-	
-	  
-	  let go = () =>{
-		quizzes = [85,44,100,22]
-		docG("quizgrades").innerHTML=quizzes
-		let quizavg=average(quizzes, true)
-		docG("quizzesavg").innerHTML=quizavg
-	}
-	
-	  let clear = ()=>{
-		  quizzes=[]
-		  quizavg=0
-		  listspot=0
-		  docG("quizgrades").innerHTML=""
-		  docG("quizzesavg").innerHTML=""
-		  docG("errordiv").className="d-none"
-		  docG("quizinput").focus()
-		  docG("clearbttn").className="btn btn-sm border disabled"
-	  }
-	  
-	  let clickID = (event)=>{
-		  console.log(event.target.id)
-	  }
+	}}
 	  
 	  
-	//window.addEventListener("load", go())
-	addbttn.addEventListener("click", addQuizClicked)
-	docG("quizinput").addEventListener("keydown", function(event) {
-  		if (event.code === "Enter") {
-    		addQuizClicked();
-  		}
-		});
-    clearbttn.addEventListener("click", clear)
-	window.addEventListener("load", docG("quizinput").focus())
-	docG("quizgrades").addEventListener("click", clickID)
-		  
-		  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
 	  
 	  </script>
 	  
