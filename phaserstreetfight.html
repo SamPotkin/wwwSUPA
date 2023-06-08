@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+</head>
+
+<body>
+<script>
+	var config = {
+    type: Phaser.AUTO,
+    width: 1000,
+    height: 560,
+	physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 700 },
+            debug: false
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
+
+var game = new Phaser.Game(config);
+	
+function preload (){
+	this.load.image('guy', 'assets/guy.png');
+	this.load.image('ground', 'assets/blackbar.png');
+	this.load.image('stage', 'assets/stage.png');
+	this.load.image('fire', 'assets/fireball.png');
+	this.load.spritesheet('ken', 
+        'assets/kensheet.png',
+        { frameWidth: 70, frameHeight: 80, spacing:2, margin:-4}
+    );
+	}
+
+function create (){
+	
+	this.add.image(500, 280, 'stage');
+	const ground = this.physics.add.staticSprite(500, 580, 'ground');
+	ground.setScale(0.6);
+	ground.setOffset(0,250);
+
+	
+	
+	
+
+
+
+	
+
+	player1 =this.physics.add.sprite(200, 300, 'ken').setScale(2.5).setSize(40,80);
+		
+	player1.setBounce(0.2);
+	player1.setCollideWorldBounds(true);
+	player1.body.setGravityY(500);
+	
+	player2 = this.physics.add.sprite(700, 200, 'ken').setScale(2.5).setSize(40,80).setTint(0x009900);
+	player2velocity = 0;
+	player2.flipX=true;
+	player2.setBounce(0.2);
+	player2.setCollideWorldBounds(true);
+	player2.body.setGravityY(500);
+	
+	this.physics.add.collider(player1, ground);
+	this.physics.add.collider(player2, ground);
+	
+	
+	this.anims.create({
+		key: 'p1idle',
+		frames: this.anims.generateFrameNumbers('ken', { start: 6, end: 7 }),
+		frameRate: 5,
+		yoyo:true,
+		repeatDelay:0,
+		repeat: -1
+	});
+	this.anims.create({
+		key: 'p1punch',
+		frames: this.anims.generateFrameNumbers('ken', { start: 12, end: 14}),
+		frameRate: 10,
+		repeat: 0
+	});
+	this.anims.create({
+		key: 'p1fire',
+		frames: this.anims.generateFrameNumbers('ken', { start: 0, end: 3}),
+		frameRate: 15,
+		repeat: 0
+	});
+	this.anims.create({
+		key: 'p1jump',
+		frames: this.anims.generateFrameNumbers('ken', { start: 17, end: 21}),
+		frameRate: 15,
+		repeat: 0
+	});
+	this.anims.create({
+		key: 'playercrouch',
+		frames: this.anims.generateFrameNumbers('ken', { start: 53, end: 53}),
+		frameRate: 15,
+		repeat: 0
+	});
+	
+
+
+	let makeBar = (x, y,color, width, height)=>{ 
+        //draw the bar
+        let bar = this.add.graphics();
+
+        //color the bar
+        bar.fillStyle(color, 1);
+
+        //fill the bar with a rectangle
+        bar.fillRect(0, 0, width, height);
+        
+        //position the bar
+        bar.x = x;
+        bar.y = y;
+
+        //return the bar
+        return bar;
+    }
+
+	let setValue = (bar,percentage) => {
+        //scale the bar
+        bar.scaleX = percentage/100;
+    }
+	
+	let health1 = 200;
+	let health2 = 200;
+	
+	let healthbar1 = makeBar(75,30,0x2ecc71, 200, 50);
+	let healthbar1back = makeBar(512,20,0x9e1c29, 425, 75);
+	healthbar1.setDepth(1);
+	healthbar1back.setDepth(0);
+	let healthbar2 = makeBar(525,30,0x2ecc71, 200, 50);
+	let healthbar2back = makeBar(62,20,0x9e1c29, 425, 75);
+	healthbar2.setDepth(1);
+	healthbar2back.setDepth(0);
+	
+	
+	setValue(healthbar1,health1);
+	setValue(healthbar2,health2);
+	
+	
+
+	let testplayerdeath = (player) =>{
+		let isanydead = false;
+		let winner=null;
+		if(player===player1){
+			if(health1===0){
+				player1.setTint(0xff0000);
+				winner="Player 2";
+				isanydead = true;
+			}
+		
+		}
+		else if(player===player2){
+			if(health2===0){
+			player2.setTint(0xff0000);
+			winner="Player 1";
+			isanydead = true;
+			}
+		
+		}
+		if(isanydead===true && winner != null){
+			player1.flipX = false;
+			player2.flipX = true;
+			player1.x = 400;
+			player2.x = 600;
+			player1.y = 400;
+			player2.y = 400;
+			winningtext = this.add.text(370, 180, winner +' Wins!', { fontSize: '32px', fill: '#000', backgroundColor: '#0f2' });
+			this.physics.pause();
+		}
+	}
+	
+
+	
+	let playerhurt = (player, damage) =>{
+		if (player == player1){
+			health1 = health1-damage;
+			if (health1 >= 0){
+				setValue(healthbar1,health1);
+				testplayerdeath(player1);
+			}
+			else{
+				health1 = 0;
+				setValue(healthbar1,health1);
+				testplayerdeath(player1);
+			}
+			
+		}
+		else if (player == player2){
+			health2 = health2-damage;
+			if (health2 >= 0){
+				setValue(healthbar2,health2);
+				testplayerdeath(player2);
+			}
+			else{
+				health2 = 0;
+				setValue(healthbar2,health2);
+				testplayerdeath(player2);
+			}
+		}
+	}
+	
+
+	
+	
+	
+	cursors = this.input.keyboard.createCursorKeys();
+	is1keydown = false;
+	is2keydown = false;
+	let punch1hitbox = null;
+	let punch2hitbox = null;
+	let proj1hitbox = null;
+	let proj2hitbox = null;
+	 is1punching = false;
+	 is2punching = false;
+	 is1jumping = false;
+	 is2jumping = false;
+	 is1shooting = false;
+	is1shootinganim = false;
+	 is2shooting = false;
+	is2shootinganim = false;
+	let is1sprinting = false;
+	let is2sprinting = false;
+	p1crouch = false;
+	p2crouch = false;
+	
+
+	function anykey(event){
+		
+	let code = event.keyCode;
+		
+	if(code == Phaser.Input.Keyboard.KeyCodes.P)
+	{
+		player2.setVelocityX(275);
+		player2velocity = 275;
+		player2.flipX=false;
+		is2keydown = true;
+		
+	}
+	if(code == Phaser.Input.Keyboard.KeyCodes.I)
+	{
+		player2.setVelocityX(-275);
+		player2velocity = -275;
+		player2.flipX=true;
+		is2keydown = true;
+		
+	}
+		
+	if(code == Phaser.Input.Keyboard.KeyCodes.O){
+		if (player2.y > 350){
+			player2.setVelocityY(-500);
+			is2keydown = true;
+		}
+	}
+	if(code == Phaser.Input.Keyboard.KeyCodes.L){
+		if(player2.flipX===true){
+			p2crouch=true;
+			player2.anims.play('playercrouch',true);
+			player2.setSize(40,50);
+			player2.setOffset(20,30);
+		}
+		else if(player2.flipX===false){
+			p2crouch=true;
+			player2.anims.play('playercrouch',true);
+			player2.setSize(40,50);
+			player2.setOffset(10,30);
+		}
+	}
+
+	if(code == Phaser.Input.Keyboard.KeyCodes.Q)
+	{
+		player1.setVelocityX(-275);
+		player1velocity = -275;
+		player1.flipX=true;
+		is1keydown = true;
+		
+	}
+	
+	if(code == Phaser.Input.Keyboard.KeyCodes.E){
+		player1.setVelocityX(275);
+		player1velocity = 275;
+		player1.flipX=false;
+		is1keydown = true;
+	}
+	if(code == Phaser.Input.Keyboard.KeyCodes.W){
+		if (player1.y > 350){
+			player1.setVelocityY(-500);
+			is1keydown = true;
+		}
+	}
+	if(code == Phaser.Input.Keyboard.KeyCodes.S){
+		if(player1.flipX===true){
+			p1crouch=true;
+			player1.anims.play('playercrouch',true);
+			player1.setSize(40,50);
+			player1.setOffset(20,30);
+		}
+		else if(player1.flipX===false){
+			p1crouch=true;
+			player1.anims.play('playercrouch',true);
+			player1.setSize(40,50);
+			player1.setOffset(10,30);
+		}
+	}
+
+	if(code == Phaser.Input.Keyboard.KeyCodes.U){
+		if(is2punching===false){
+		player2.anims.play('p1punch', true);
+		if(player2.flipX===false){
+			punch2hitbox = makeBar(player2.x+60,player2.y-60, 00000 , 20,20);
+			
+		}
+		else if(player2.flipX===true){
+			punch2hitbox = makeBar(player2.x-80,player2.y-60, 00000,  20,20);
+		}
+		punch2hitbox.alpha = 0;
+		is2punching = true;
+		this.physics.world.enable(punch2hitbox);
+		punch2hitbox.body.setAllowGravity(false).setSize(20,20);
+		this.physics.add.overlap(punch2hitbox, player1, function(){
+				playerhurt(player1,10);
+				punch2hitbox.destroy();
+			this.time.delayedCall(500, function(){
+		    is2punching = false;})
+			});
+		if(is2punching===true){
+		this.time.delayedCall(500, function(){
+			punch2hitbox.destroy();
+		    is2punching = false;}
+		)
+		}
+	}
+	}
+	if(code == Phaser.Input.Keyboard.KeyCodes.R){
+		if(is1punching===false){
+		player1.anims.play('p1punch', true);
+		if(player1.flipX===false){
+			punch1hitbox = makeBar(player1.x+60,player1.y-60,0xf90f90, 20,20);
+		}
+		else if(player1.flipX===true){
+			punch1hitbox = makeBar(player1.x-80,player1.y-60,0xf90f90, 20,20);
+		}
+		punch1hitbox.alpha = 0;
+		is1punching = true;
+		this.physics.world.enable(punch1hitbox);
+		punch1hitbox.body.setAllowGravity(false).setSize(20,20);
+		
+		this.physics.add.overlap(punch1hitbox, player2, function(){
+				playerhurt(player2,10);
+				punch1hitbox.destroy();
+				this.time.delayedCall(500, function(){
+		    	is1punching = false;})
+				});
+		if(is1punching===true){
+		this.time.delayedCall(500, function(){
+			punch1hitbox.destroy();
+		    is1punching = false;}
+		)
+
+		}		
+			
+		}
+	}
+		
+
+}
+	function stopvelocity(event){
+			let code = event.keyCode;
+	if(code == Phaser.Input.Keyboard.KeyCodes.Q && player1velocity < 0){
+		player1.setVelocityX(0);
+		is1keydown = false;
+	}
+	else if(code == Phaser.Input.Keyboard.KeyCodes.E && player1velocity > 0){
+		player1.setVelocityX(0);
+		is1keydown = false;
+	}
+	else if(code == Phaser.Input.Keyboard.KeyCodes.P && player2velocity > 0){
+		player2.setVelocityX(0);
+		is2keydown = false;
+	}
+	else if(code == Phaser.Input.Keyboard.KeyCodes.I && player2velocity < 0){
+		player2.setVelocityX(0);
+		is2keydown = false;
+	}
+	if(code == Phaser.Input.Keyboard.KeyCodes.L){
+		p2crouch = false;
+	}
+	if(code == Phaser.Input.Keyboard.KeyCodes.S){
+		p1crouch = false;
+	}
+
+	}
+	this.input.keyboard.on('keydown', anykey, this);
+	this.input.keyboard.on('keyup', stopvelocity, this);
+	
+
+	let fireball1 = () =>{
+		console.log('fire1');
+		if(is1shooting === false){
+		is1shootinganim = true;
+		player1.anims.play('p1fire', true);
+		if(player1.flipX===false){
+			is1shooting = true;
+			fire1 = this.physics.add.sprite(player1.x+30, player1.y-30, 'fire').setScale(0.4).setVelocityX(800);
+			fire1.body.setAllowGravity(false);
+			fire1.flipX = true;
+		}
+		else if(player1.flipX===true){
+			is1shooting = true;
+			fire1 = this.physics.add.sprite(player1.x-30, player1.y-30, 'fire').setScale(0.4).setVelocityX(-800);
+			fire1.body.setAllowGravity(false);
+			fire1.flipX = false;
+		}
+			
+			this.physics.add.overlap(fire1, player2, function(){
+				playerhurt(player2,50);
+				fire1.destroy();
+				this.time.delayedCall(300, function(){
+					is1shootinganim=false;
+				})
+				this.time.delayedCall(1850, function(){
+					is1shooting=false;
+				})
+			});
+			if (is1shooting===true){
+			this.time.delayedCall(150, function(){
+			fire1.destroy();
+			});
+			this.time.delayedCall(300, function(){
+			is1shootinganim = false;
+			});
+			this.time.delayedCall(2000, function(){
+			is1shooting=false;
+			});
+		}
+			
+	}
+	}
+	let fireball2 = () =>{
+		console.log('fire2');
+		if(is2shooting === false){
+		is2shootinganim = true;
+		player2.anims.play('p1fire', true);
+		if(player2.flipX===false){
+			is2shooting = true;
+			fire2 = this.physics.add.sprite(player2.x+30, player2.y-30, 'fire').setTint(0x009900).setScale(0.4).setVelocityX(800);
+			fire2.body.setAllowGravity(false);
+			fire2.flipX = true;
+		}
+		else if(player2.flipX===true){
+			is2shooting = true;
+			fire2 = this.physics.add.sprite(player2.x-30, player2.y-30, 'fire').setTint(0x009900).setScale(0.4).setVelocityX(-800);
+			fire2.body.setAllowGravity(false);
+			fire2.flipX = false;
+		}
+			
+			this.physics.add.overlap(fire2, player1, function(){
+				playerhurt(player1,50);
+				fire2.destroy();
+				this.time.delayedCall(300, function(){
+					is2shootinganim=false;
+				})
+				this.time.delayedCall(1850, function(){
+					is2shooting=false;
+				})
+			});
+			if (is2shooting===true){
+			this.time.delayedCall(150, function(){
+			fire2.destroy();
+			});
+			this.time.delayedCall(300, function(){
+			is2shootinganim = false;
+			});
+			this.time.delayedCall(2000, function(){
+			is2shooting=false;
+			});
+		}
+			
+	}
+	}
+	
+
+	
+	
+	
+	const firecombo1 = this.input.keyboard.createCombo([Phaser.Input.Keyboard.KeyCodes.W,Phaser.Input.Keyboard.KeyCodes.W,Phaser.Input.Keyboard.KeyCodes.S],{resetOnMatch: true, resetOnWrongKey: false,});
+	
+	const firecombo2 = this.input.keyboard.createCombo([Phaser.Input.Keyboard.KeyCodes.O,Phaser.Input.Keyboard.KeyCodes.O,Phaser.Input.Keyboard.KeyCodes.L],{resetOnMatch: true, resetOnWrongKey: false,});
+	
+	const dashcomboleft2 = this.input.keyboard.createCombo([Phaser.Input.Keyboard.KeyCodes.I,Phaser.Input.Keyboard.KeyCodes.I,Phaser.Input.Keyboard.KeyCodes.I],{resetOnMatch: true, resetOnWrongKey: false,});
+	
+	const dashcomboright2 = this.input.keyboard.createCombo([Phaser.Input.Keyboard.KeyCodes.P,Phaser.Input.Keyboard.KeyCodes.P,Phaser.Input.Keyboard.KeyCodes.P],{resetOnMatch: true, resetOnWrongKey: false,});
+	
+	const dashcomboleft1 = this.input.keyboard.createCombo([Phaser.Input.Keyboard.KeyCodes.Q,Phaser.Input.Keyboard.KeyCodes.Q,Phaser.Input.Keyboard.KeyCodes.Q],{resetOnMatch: true, resetOnWrongKey: false,});
+	
+	const dashcomboright1 = this.input.keyboard.createCombo([Phaser.Input.Keyboard.KeyCodes.R,Phaser.Input.Keyboard.KeyCodes.R,Phaser.Input.Keyboard.KeyCodes.E],{resetOnMatch: true, resetOnWrongKey: false,});
+	
+	
+	let handleFireCombo = (event) => {
+    const { keyCodes } = event;
+
+    if (keyCodes.every((keyCode, index) => keyCode === firecombo2.keyCodes[index])) {
+        fireball2();
+    }
+
+    if (keyCodes.every((keyCode, index) => keyCode === firecombo1.keyCodes[index])) {
+        fireball1();
+    }
+		
+		
+		//change 1 to 2 and 2 to 1 vvvv
+	//if (keyCodes.every((keyCode, index) => keyCode === dashcomboleft1.keyCodes[index])) {
+		//if (is1sprinting===false){
+		//	is1sprinting = true;
+		//	player1.x -= 175;
+		//	this.time.delayedCall(2000, function(){
+		//	is1sprinting = false;
+		//	});
+		//}
+    //}
+		
+	//if (keyCodes.every((keyCode, index) => keyCode === dashcomboright1.keyCodes[index])) {
+     //   if (is1sprinting===false){
+	//		is1sprinting = true;
+	//		player1.x += 175;
+	//		this.time.delayedCall(2000, function(){
+	//		is1sprinting = false;
+	//		});
+	//	}
+  //  }
+		
+	//if (keyCodes.every((keyCode, index) => keyCode === dashcomboleft2.keyCodes[index])) {
+    //   if (is2sprinting===false){
+	//		is2sprinting = true;
+	//		player2.x -= 175;
+	//		this.time.delayedCall(2000, function(){
+	//		is2sprinting = false;
+	//		});
+	//	}
+   // }
+		
+	//if (keyCodes.every((keyCode, index) => keyCode === dashcomboright2.keyCodes[index])) {
+     //   if (is2sprinting===false){
+	//		is2sprinting = true;
+	//		player2.x += 175;
+	//		this.time.delayedCall(2000, function(){
+	//		is2sprinting = false;
+	//		});
+	//	}
+   // }
+};
+	
+
+	this.input.keyboard.on('keycombomatch', handleFireCombo);
+	this.input.keyboard.on('keycombomatch', handleFireCombo);
+
+
+
+	
+	
+	
+}
+function update (){
+	
+
+	
+	
+	if (is1keydown === false){
+		player1.setVelocityX(0);
+	}
+	if (is2keydown === false){
+		player2.setVelocityX(0);
+	}
+	if (player1.flipX===false && p1crouch ===false){
+		player1.setSize(40,80);
+		player1.setOffset(10,0);
+	}
+	else if (player1.flipX===true && p1crouch ===false){
+		player1.setSize(40,80);
+		player1.setOffset(20,0);
+	}
+	if (player2.flipX===false && p2crouch ===false){
+		player2.setSize(40,80);
+		player2.setOffset(10,0);
+	}
+	else if (player2.flipX===true && p2crouch ===false){
+		player2.setSize(40,80);
+		player2.setOffset(20,0);
+	}
+	if (is1punching === false && is1shootinganim === false && p1crouch === false){
+		player1.anims.play('p1idle', true);
+	}
+	if (is2punching === false && is2shootinganim === false && p2crouch === false){
+		player2.anims.play('p1idle', true);
+	}
+	
+
+
+}
+	
+</script>
+	
+	
+</body>
+</html>
